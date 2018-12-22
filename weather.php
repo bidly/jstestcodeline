@@ -5,7 +5,7 @@
  *
  * command: search
  * uri: weather.php?command=search&keyword={your_keyword}
- * 
+ *
  * command: location
  * uri: weather.php?command=location&woeid={target_woeid}
  */
@@ -13,10 +13,25 @@
 /**
  * Declarations
  */
+
+/**
+* Added this codeblock here to avoid cors issue.
+*/
+switch ($_SERVER['HTTP_ORIGIN']) {
+    case 'http://localhost:8080': case 'http://localhost':
+    header('Access-Control-Allow-Origin: '.$_SERVER['HTTP_ORIGIN']);
+    header('Access-Control-Allow-Methods: GET, PUT, POST, DELETE, OPTIONS');
+    header('Access-Control-Max-Age: 1000');
+    header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
+}
+
+
+
 $validCommands = [
 	'search',
 	'location'
 ];
+
 
 $command = isset($_GET['command']) ? $_GET['command'] : null;
 $baseUrl = 'https://www.metaweather.com/api/location/';
@@ -41,11 +56,11 @@ function quitWithJsonResponse($output, $code = 200) {
 function mirrorToEndpoint($uri) {
 	global $baseUrl;
 	$response = @file_get_contents($baseUrl . $uri);
-	
+
 	if ( $response ) {
-		return quitWithResponse($response);	
-	}	
-	
+		return quitWithResponse($response);
+	}
+
 	quitWithJsonResponse(['error' => 'Not found'], 404);
 }
 

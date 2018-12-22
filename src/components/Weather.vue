@@ -1,6 +1,5 @@
 <template>
-  <div id="weather">
-    <h1>Weather App</h1>
+  <div>
 
     <section v-if="errored">
       <p>We're sorry, we're not able to retrieve this information at the moment, please try back later</p>
@@ -23,15 +22,15 @@
           </tr>
           </thead>
           <tbody>
-
-          <show-weather v-for="city in info"
+          <weather v-for="city in info"
                         v-bind:title="city.title"
                         v-bind:temp="city.consolidated_weather[0].the_temp"
                         v-bind:max="city.consolidated_weather[0].max_temp"
                         v-bind:min="city.consolidated_weather[0].min_temp"
-                        v-bind:ico="city.consolidated_weather[0].max_temp">
+                        v-bind:woeid="'http://localhost:8080/#/weather/' + city.woeid"
+                        v-bind:ico="'https://www.metaweather.com/static/img/weather/' + city.consolidated_weather[0].weather_state_abbr + '.svg'">
 
-          </show-weather>
+          </weather>
           </tbody>
         </table>
 
@@ -40,11 +39,25 @@
     </section>
   </div>
 </template>
-n
+
 <script>
 import axios from 'axios'
 import Vue from 'vue'
 
+const weather = {
+  props: ['title', 'temp', 'max', 'min', 'woeid', 'ico'],
+  template: '<tr>' +
+    ' <td>' +
+    '  <a :href="woeid">' +
+    '{{ title }}</td>\n' +
+    '        <td>{{ temp }}</td>\n' +
+    '        <td>{{ max }}</td>\n' +
+    '        <td>{{ min }}</td>\n' +
+    '        <td><img :src="ico"></td>\n' +
+    '</tr>'
+}
+
+/* Opening page, which brings the 6 default cities temperatures and other requested values*/
 export default {
   name: 'Weather',
   data () {
@@ -56,10 +69,11 @@ export default {
       cities: [2344116, 565346, 560743, 638242, 44418, 9807] // city codes for home page
     }
   },
+  /* Get weather method requests the json of the sent woeid (in this case, it is one of the woeid's above */
   methods: {
     getWeather (woeid) {
       axios
-        .get(`https://cors-anywhere.herokuapp.com/https://www.metaweather.com/api/location/${woeid}/`)
+        .get(`http://localhost/jstestcodeline/weather.php?command=location&woeid=${woeid}/`)
         .then(response => (this.info.push(response.data)), error => {
           console.error(error)
         })
@@ -71,23 +85,16 @@ export default {
         .finally(() => this.loading = false)
     }
   },
-  mounted () {
+  beforeMount () {
     this.cities.forEach((item) => {
       this.getWeather(item)
     })
+  },
+
+  components: {
+    'weather': weather
   }
 }
-
-Vue.component('show-weather', {
-  props: ['title', 'temp', 'max', 'min', 'ico'],
-  template: '<tr>' +
-  ' <td>{{ title }}</td>\n' +
-      '        <td>{{ temp }}</td>\n' +
-      '        <td>{{ max }}</td>\n' +
-      '        <td>{{ min }}</td>\n' +
-      '        <td>{{ ico }}</td>\n' +
-      '</tr>'
-})
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->

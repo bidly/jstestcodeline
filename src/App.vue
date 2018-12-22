@@ -1,23 +1,24 @@
 <template>
   <div id="app">
-    <label>
-      Search:
-      <input type="search" v-model="search" ref="city" />
-    </label>
-    <button @click="searchResult">Search</button>
-    <router-view/>
-
+    <h1>Weather App</h1>
+      <form @submit="searchResult">
+        <label>
+          Search:
+        </label>
+        <input type="search" v-model="search" ref="city" />
+        <b-button type="submit">Search</b-button>
+      </form>
+    <router-view></router-view>
   </div>
 </template>
 
 <script>
-  import BootstrapVue from 'bootstrap-vue'
-  import axios from 'axios'
-  import Vue from 'vue'
-  import 'bootstrap/dist/css/bootstrap.css'
-  import 'bootstrap-vue/dist/bootstrap-vue.css'
+import BootstrapVue from 'bootstrap-vue'
+import Vue from 'vue'
+import 'bootstrap/dist/css/bootstrap.css'
+import 'bootstrap-vue/dist/bootstrap-vue.css'
 
-  Vue.use(BootstrapVue)
+Vue.use(BootstrapVue)
 
 export default {
   name: 'App',
@@ -29,24 +30,16 @@ export default {
     }
   },
   methods: {
-    searchResult (city) {
+    /* This function routes the user on search to the ../search/keyword */
+    searchResult () {
       this.city = this.$refs.city.value
-      axios
-        .get(`https://cors-anywhere.herokuapp.com/https://www.metaweather.com/search/?query=${city}/`)
-        .then(response => (this.search.push(response.data)))
-        .catch(e => {
-          this.info = e
-          this.errored = true
-        })
-        .finally(() => this.loading = false)
       this.$router.push('/search/' + this.city)
+      this.reload()
     }
   },
 
   mounted () {
-    this.cities.forEach((item) => {
-      this.searchResult(item)
-    })
+
   }
 }
 
